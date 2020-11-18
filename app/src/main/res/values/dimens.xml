@@ -2,4 +2,7 @@
 <resources>
     <dimen name="card_margin">4dp</dimen>
     <dimen name="card_item_margin">8dp</dimen>
+    <dimen name="text_input_padding">16dp</dimen>
+    <dimen name="edit_text_body_margin">16dp</dimen>
+    <dimen name="padding_default">16dp</dimen>
 </resources>
