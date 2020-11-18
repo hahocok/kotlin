@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">kotlin</string>
     <string name="click">click</string>
+    <string name="title">My Notes</string>
+    <string name="card_title">Geekbrains + Kotlin forever</string>
+    <string name="card_body">Я Kotlin бы выучил только за то, что на нем разрабатывал Вортон!</string>
 </resources>
