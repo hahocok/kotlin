@@ -1,39 +1,39 @@
 package com.android.kotlin.ui.main
 
 import android.os.Bundle
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.android.kotlin.R
 import com.android.kotlin.data.model.Note
+import com.android.kotlin.ui.base.BaseActivity
 import com.android.kotlin.ui.note.NoteActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity<List<Note>?, MainViewState>() {
 
-    private lateinit var viewModel: MainViewModel
+    override val viewModel: MainViewModel by lazy { ViewModelProviders.of(this).get(MainViewModel::class.java) }
+    override val layoutRes: Int = R.layout.activity_main
     private lateinit var adapter: MainAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
         adapter = MainAdapter( object : MainAdapter.OnItemClickListener {
             override fun onItemClick(note: Note) {
-                NoteActivity.start(this@MainActivity, note)
+                openNoteScreen(note)
             }
         })
         mainRecycler.adapter = adapter
 
-        viewModel.viewState().observe(this, Observer<MainViewState> { t ->
-            t?.let { adapter.notes = it.notes }
-        })
+        fab.setOnClickListener { openNoteScreen(null) }
+    }
 
-        fab.setOnClickListener {
-            NoteActivity.start(this)
-        }
+    override fun renderData(data: List<Note>?) {
+        if (data == null) return
+        adapter.notes = data
+    }
+
+    private fun openNoteScreen(note: Note?) {
+        NoteActivity.start(this, note)
     }
 }

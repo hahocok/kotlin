@@ -7,18 +7,18 @@ import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.MenuItem
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProviders
 import com.android.kotlin.R
 import com.android.kotlin.data.model.Color
 import com.android.kotlin.data.model.Note
+import com.android.kotlin.ui.base.BaseActivity
+import com.android.kotlin.ui.base.NoteViewState
 import kotlinx.android.synthetic.main.activity_note.*
-import java.text.SimpleDateFormat
 import java.util.*
 
 private const val SAVE_DELAY = 2000L
 
-class NoteActivity : AppCompatActivity() {
+class NoteActivity : BaseActivity<Note?, NoteViewState>() {
 
     companion object {
         private val EXTRA_NOTE = NoteActivity::class.java.name + "extra.NOTE"
@@ -31,27 +31,30 @@ class NoteActivity : AppCompatActivity() {
         }
     }
 
-    private var note: Note? = null
-    lateinit var viewModel: NoteViewModel
 
+    override val viewModel: NoteViewModel by lazy { ViewModelProviders.of(this).get(NoteViewModel::class.java) }
+    override val layoutRes: Int = R.layout.activity_note
+    private var note: Note? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_note)
 
-        note = intent.getParcelableExtra(EXTRA_NOTE)
+        val noteId = intent.getStringExtra(EXTRA_NOTE)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        supportActionBar?.title = if (note != null) {
-            SimpleDateFormat(DATE_TIME_FORMAT,
-                Locale.getDefault()).format(note!!.lastChanged)
-        } else {
-            getString(R.string.new_note_title)
+        noteId?.let {
+            viewModel.loadNote(it)
         }
 
-        viewModel = ViewModelProviders.of(this).get(NoteViewModel::class.java)
+        if (noteId == null ) supportActionBar?.title = getString(R.string.new_note_title)
 
+        titleEt.addTextChangedListener(textChangeListener)
+        bodyEt.addTextChangedListener(textChangeListener)
+    }
+
+    override fun renderData(data: Note?) {
+        this.note = data
         initView()
     }
 
