@@ -22,11 +22,10 @@ class NoteActivity : BaseActivity<Note?, NoteViewState>() {
 
     companion object {
         private val EXTRA_NOTE = NoteActivity::class.java.name + "extra.NOTE"
-        private const val DATE_TIME_FORMAT = "dd.MM.yy HH:mm"
 
-        fun start(context: Context, note: Note? = null) {
+        fun start(context: Context, noteId: String? = null) {
             val intent = Intent(context, NoteActivity::class.java)
-            intent.putExtra(EXTRA_NOTE, note)
+            intent.putExtra(EXTRA_NOTE, noteId)
             context.startActivity(intent)
         }
     }
@@ -59,10 +58,10 @@ class NoteActivity : BaseActivity<Note?, NoteViewState>() {
     }
 
     private fun initView() {
-        if (note != null) {
-            titleEt.setText(note?.title ?: "")
-            bodyEt.setText(note?.note ?: "")
-            val color = when(note!!.color) {
+        note?.let {note ->
+            titleEt.setText(note.title)
+            bodyEt.setText(note.note)
+            val color = when(note.color) {
                 Color.WHITE -> R.color.color_white
                 Color.VIOLET -> R.color.color_violet
                 Color.YELLOW -> R.color.color_yellow
