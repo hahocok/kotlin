@@ -17,10 +17,8 @@ import com.android.kotlin.data.model.Color
 import com.android.kotlin.data.model.Note
 import com.android.kotlin.ui.base.NoteViewState
 import com.android.kotlin.ui.main.MainAdapter
-import com.android.kotlin.ui.main.MainViewState
 import com.android.kotlin.ui.note.NoteActivity
 import com.android.kotlin.ui.note.NoteViewModel
-import com.google.common.base.CharMatcher.any
 import io.mockk.every
 import io.mockk.verify
 import io.mockk.mockk
@@ -97,7 +95,7 @@ class NoteActivityTest {
     @Test
     fun should_show_note() {
         activityTestRule.launchActivity(null)
-        viewStateLiveData.postValue(NoteViewState(NoteViewState.Data(note = testNote)))
+        viewStateLiveData.postValue(NoteViewState(NoteViewState.NoteData(note = testNote)))
 
         onView(withId(R.id.titleEt)).check(matches(withText(testNote.title)))
         onView(withId(R.id.bodyEt)).check(matches(withText(testNote.note)))

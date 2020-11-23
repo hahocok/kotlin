@@ -9,6 +9,12 @@ import com.android.kotlin.data.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 private const val NOTES_COLLECTION = "notes"
 private const val USERS_COLLECTION = "users"
@@ -33,33 +39,43 @@ class FireStoreProvider(private val firebaseAuth: FirebaseAuth,
                 it.email ?: "") }
         }
 
-    override fun subscribeToAllNotes() = MutableLiveData<Result>().apply {
-        try {
-            userNotesCollection.addSnapshotListener { snapshot, e ->
-                e?.let {
-                    throw it
-                } ?: let {
-                    snapshot?.let { snapshot ->
-                        value = Result.Success(snapshot.map { it.toObject(Note::class.java) })
-                    }
-                }
-            }
-        } catch (e: Throwable){
-            value = Result.Error(e)
-        }
-    }
+    override fun subscribeToAllNotes(): ReceiveChannel<Result> =
+        Channel<Result>(Channel.CONFLATED).apply {
+            var registration: ListenerRegistration? = null
 
-    override fun getNoteById(id: String) = MutableLiveData<Result>().apply {
-        try {
-            userNotesCollection.document(id).get()
-                .addOnSuccessListener { snapshot ->
-                    value = Result.Success(snapshot.toObject(Note::class.java))
-                }.addOnFailureListener {
-                    value = Result.Error(it)
-                }
-        } catch (e: Throwable){
-            value = Result.Error(e)
+            try {
+                registration =
+                    userNotesCollection.addSnapshotListener { snapshot, e ->
+                        val value = e?.let {
+                            Result.Error(it)
+                        } ?: snapshot?.let {
+                            val notes = it.documents.map { it ->
+                                it.toObject(Note::class.java)
+                            }
+                            Result.Success(notes)
+                        }
+
+                        value?.let { offer(it) }
+                    }
+            } catch (e: Throwable) {
+                offer(Result.Error(e))
+            }
+
+            invokeOnClose { registration?.remove() }
         }
+
+    override suspend fun getNoteById(id: String): Note =
+        suspendCoroutine { continuation ->
+            try {
+                userNotesCollection.document(id).get()
+                    .addOnSuccessListener {
+                        continuation.resume(it.toObject(Note::class.java)!!)
+                    }.addOnFailureListener {
+                        continuation.resumeWithException(it)
+                    }
+            } catch (e: Throwable){
+                continuation.resumeWithException(e)
+            }
     }
 
 

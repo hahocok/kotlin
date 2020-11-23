@@ -5,32 +5,26 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import com.android.kotlin.R
 import com.android.kotlin.data.errors.NoAuthException
 import com.firebase.ui.auth.AuthUI
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.consumeEach
+import kotlin.coroutines.CoroutineContext
 
 private const val RC_SIGN_IN = 458
 
-abstract class BaseActivity<T, S : BaseViewState<T>> : AppCompatActivity() {
+abstract class BaseActivity<T> : AppCompatActivity(), CoroutineScope {
 
-    abstract val model: BaseViewModel<T, S>
-    abstract val layoutRes: Int?
+    override val coroutineContext: CoroutineContext by lazy { Dispatchers.Main + Job() }
+    private lateinit var dataJob: Job
+    private lateinit var errorJob: Job
+    abstract val model: BaseViewModel<T>
+    abstract val layoutRes: Int
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        layoutRes?.let {  setContentView(it) }
-        model.getViewState().observe(this, object : Observer<S> {
-            override fun onChanged(t: S?) {
-                t ?: return
-                t.error?.let {
-                    renderError(it)
-                    return
-                }
-                renderData(t.data)
-            }
-        })
-
+        setContentView(layoutRes)
     }
 
     protected open fun renderError(error: Throwable) {
@@ -66,7 +60,34 @@ abstract class BaseActivity<T, S : BaseViewState<T>> : AppCompatActivity() {
 
     abstract fun renderData(data: T)
 
-    protected fun showError(error: String) {
+    private fun showError(error: String) {
         Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
     }
+
+    override fun onStart() {
+        super.onStart()
+        dataJob = launch {
+            model.getViewState().consumeEach {
+                renderData(it)
+            }
+        }
+
+        errorJob = launch {
+            model.getErrorChannel().consumeEach {
+                renderError(it)
+            }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        dataJob.cancel()
+        errorJob.cancel()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        coroutineContext.cancel()
+    }
+
 }

@@ -13,17 +13,12 @@ import com.android.kotlin.data.model.Color
 import com.android.kotlin.data.model.Note
 import com.android.kotlin.ui.base.BaseActivity
 import com.android.kotlin.ui.base.NoteViewState
-import kotlinx.android.synthetic.main.activity_note.*
-import org.jetbrains.anko.alert
-import org.jetbrains.anko.startActivity
-import org.koin.android.ext.android.inject
-import org.koin.android.viewmodel.ext.android.viewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
 private const val SAVE_DELAY = 2000L
 
-class NoteActivity : BaseActivity<NoteViewState.Data, NoteViewState>() {
+class NoteActivity : BaseActivity<NoteViewState.NoteData, NoteViewState>() {
 
     companion object {
         private val EXTRA_NOTE = NoteActivity::class.java.name + "extra.NOTE"
@@ -75,9 +70,9 @@ class NoteActivity : BaseActivity<NoteViewState.Data, NoteViewState>() {
         toolbar.setBackgroundColor(color.getColorInt(this))
     }
 
-    override fun renderData(data: NoteViewState.Data) {
-        if (data.isDeleted) finish()
-        this.note = data.note
+    override fun renderData(noteData: NoteViewState.NoteData) {
+        if (noteData.isDeleted) finish()
+        this.note = noteData.note
         initView()
     }
 
