@@ -14,6 +14,9 @@ import com.android.kotlin.ui.note.NoteActivity
 import com.android.kotlin.ui.splash.SplashActivity
 import com.firebase.ui.auth.AuthUI
 import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.alert
+import org.koin.android.ext.android.inject
+import org.koin.android.viewmodel.ext.android.viewModel
 
 class MainActivity : BaseActivity<List<Note>?, MainViewState>(),
     LogoutDialog.LogoutListener {
@@ -25,7 +28,7 @@ class MainActivity : BaseActivity<List<Note>?, MainViewState>(),
 
     }
 
-    override val viewModel: MainViewModel by lazy { ViewModelProviders.of(this).get(MainViewModel::class.java) }
+    override val model: MainViewModel by viewModel()
     override val layoutRes: Int = R.layout.activity_main
     private lateinit var adapter: MainAdapter
 
@@ -53,8 +56,12 @@ class MainActivity : BaseActivity<List<Note>?, MainViewState>(),
         }
 
     private fun showLogoutDialog() {
-        supportFragmentManager.findFragmentByTag(LogoutDialog.TAG) ?:
-        LogoutDialog.createInstance().show(supportFragmentManager, LogoutDialog.TAG)
+        alert {
+            titleResource = R.string.logout_dialog_title
+            messageResource = R.string.logout_dialog_message
+            positiveButton(R.string.note_delete_ok) { onLogout() }
+            negativeButton(R.string.note_delete_cancel) { dialog -> dialog.dismiss() }
+        }.show()
     }
 
     override fun renderData(data: List<Note>?) {

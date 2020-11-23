@@ -9,7 +9,7 @@ private const val START_DELAY = 1000L
 
 class SplashActivity : BaseActivity<Boolean?, SplashViewState>() {
 
-    override val viewModel: SplashViewModel by lazy {
+    override val model: SplashViewModel by lazy {
         ViewModelProviders.of(this).get(SplashViewModel::class.java)
     }
 
@@ -17,7 +17,7 @@ class SplashActivity : BaseActivity<Boolean?, SplashViewState>() {
 
     override fun onResume() {
         super.onResume()
-        Handler().postDelayed({ viewModel.requestUser() }, START_DELAY)
+        Handler().postDelayed({ model.requestUser() }, START_DELAY)
     }
 
     override fun renderData(data: Boolean?) {

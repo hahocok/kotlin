@@ -3,15 +3,15 @@ package com.android.kotlin.ui.main
 import androidx.lifecycle.Observer
 import com.android.kotlin.data.Repository
 import com.android.kotlin.data.model.Note
-import com.android.kotlin.data.model.NoteResult
-import com.android.kotlin.data.model.NoteResult.Error
-import com.android.kotlin.data.model.NoteResult.Success
+import com.android.kotlin.data.model.Result
+import com.android.kotlin.data.model.Result.Error
+import com.android.kotlin.data.model.Result.Success
 import com.android.kotlin.ui.base.BaseViewModel
 
-class MainViewModel(private val repository: Repository = Repository) : BaseViewModel<List<Note>?, MainViewState>() {
+class MainViewModel(private val repository: Repository) : BaseViewModel<List<Note>?, MainViewState>() {
 
-    private val notesObserver = object : Observer<NoteResult> {
-    override fun onChanged(t: NoteResult?) {
+    private val notesObserver = object : Observer<Result> {
+    override fun onChanged(t: Result?) {
         if (t == null) return
 
         when(t) {

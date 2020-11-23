@@ -14,13 +14,13 @@ private const val RC_SIGN_IN = 458
 
 abstract class BaseActivity<T, S : BaseViewState<T>> : AppCompatActivity() {
 
-    abstract val viewModel: BaseViewModel<T, S>
+    abstract val model: BaseViewModel<T, S>
     abstract val layoutRes: Int?
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         layoutRes?.let {  setContentView(it) }
-        viewModel.getViewState().observe(this, object : Observer<S> {
+        model.getViewState().observe(this, object : Observer<S> {
             override fun onChanged(t: S?) {
                 t ?: return
                 t.error?.let {

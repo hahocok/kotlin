@@ -11,4 +11,6 @@
     <color name="color_red">#ff8a80</color>
     <color name="color_violet">#e1bee7</color>
     <color name="color_pink">#f8bbd0</color>
+
+    <color name="text_secondary">#66000000</color>
 </resources>
