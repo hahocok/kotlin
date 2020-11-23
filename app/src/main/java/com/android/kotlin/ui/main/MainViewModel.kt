@@ -32,7 +32,7 @@ class MainViewModel(private val repository: Repository) : BaseViewModel<List<Not
         repositoryNotes.observeForever(notesObserver)
     }
 
-    override fun onCleared() {
+    public override fun onCleared() {
         repositoryNotes.removeObserver(notesObserver)
     }
 }

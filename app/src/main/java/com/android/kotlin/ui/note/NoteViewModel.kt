@@ -9,7 +9,7 @@ import com.android.kotlin.ui.base.NoteViewState
 import com.android.kotlin.ui.base.NoteViewState.Data
 
 
-class NoteViewModel(private val repository: Repository = Repository) : BaseViewModel<Data, NoteViewState>() {
+class NoteViewModel(private val repository: Repository) : BaseViewModel<Data, NoteViewState>() {
 
     private val currentNote: Note?
         get() = viewStateLiveData.value?.data?.note
