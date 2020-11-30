@@ -56,7 +56,6 @@ object Repository {
     }
 
     private fun addOrReplace(note: Note) {
-
         for (i in notes.indices) {
             if (notes[i] == note) {
                 notes[i] = note
@@ -66,5 +65,4 @@ object Repository {
 
         notes.add(note)
     }
-
 }
